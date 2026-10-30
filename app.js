@@ -49,3 +49,5 @@ document.querySelectorAll('[data-answer]').forEach(b=>b.addEventListener('click'
 import './workshop.js';
 
 import './experiments-ui.js';
+
+import './dfa-ui.js';

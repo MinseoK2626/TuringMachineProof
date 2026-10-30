@@ -18,19 +18,13 @@ Open http://localhost:3000 on the same machine. `PORT=8080 npm start` selects an
 npm test
 ```
 
-## Course-to-data experiment lab
+## Computational experiments
 
-The entry point now follows a modeling-and-analysis workflow based on the supplied CS 3120 Discrete Math and Theory II homework, **Q1**:
+Explore five explicit language algorithms: equal counts, repeated words, binary palindromes, even parity, and ordered blocks (0*1*). Enumerate all short inputs, choose a transition budget, and check completed results with independent predicates. Unknown executions remain separate from rejected inputs.
 
-- Compile marking-and-rescanning algorithms for equal counts of 0/1 and repeated words `w#w` into explicit deterministic transition tables.
-- Enumerate every input over the task alphabet through a selected length (0–7), then run each on a fresh tape.
-- Label inputs with independently implemented direct predicates and report mismatches separately from budget-limited unknown outcomes.
-- Plot measured mean and maximum physical transition counts by input length, report medians, and inspect individual rows. Compare equal-length inputs to isolate ordering effects while checking whether outcomes also differ.
-- Download all per-input measurements as CSV. Send an actual generated machine and selected input to the transition debugger.
+Switch between physical transitions, left/right moves, changed-symbol writes and tape span. Analyze all completed inputs, accepted inputs, or rejected inputs. Missing groups remain missing; unfinished executions are excluded from completed-run averages and may introduce selection bias. Compare individual inputs, filter the dataset, export raw CSV, and inspect generated machines in the debugger.
 
-This is a computational experiment project relevant to data science through model specification, exhaustive dataset generation, independent validation, measurement design, visualization and interpretation. It does not claim to train a statistical model. All datasets are generated locally; the uploaded lecture and homework PDFs are not published.
-
-The course connection is explicit: Q1 motivates the new experiments, Q4 supports the two-way tape modeling choice, Q5 motivates the closure lab, and Q7 motivates the undecidability reduction. The slides introduce configurations and decidability versus recognizability. The software is an extension of those ideas, not an assertion that charts prove theorems.
+The project connects model specification, dataset generation, validation, measurement, visualization and interpretation. Finite experiments support implementation checks; they do not establish unrestricted correctness or asymptotic complexity.
 
 ## What a reviewer can do
 
@@ -44,9 +38,12 @@ The course connection is explicit: Q1 motivates the new experiments, Q4 supports
 
 | File | Responsibility |
 | --- | --- |
-| `experiments.js` | Course machine constructors, independent labels, exhaustive input enumeration, physical-step measurement and CSV export |
+| `experiments.js` | Experiment machine constructors, independent labels, exhaustive input enumeration, physical-step measurement and CSV export |
 | `experiments-ui.js` | Experiment protocol, measured chart, filtering, controlled comparison and debugger handoff |
-| `experiments.test.js` | Exhaustive agreement for 3,535 inputs across both tasks, edge cases and measurement consistency |
+| `experiments.test.js` | Exhaustive agreement for all inputs through length seven across five algorithms, edge cases and measurement consistency |
+| `dfa.js` | Total DFA validation, product construction, BFS decision, independent certificate verification |
+| `dfa-ui.js` | Editable DFA explorer, live reachability search, witness and word traces |
+| `dfa.test.js` | Exhaustive two-state DFA decisions, shortest witnesses and tamper detection |
 | `logic.js` | Example total deciders and all-candidate closure evaluator |
 | `proof-engine.js` | Closure execution generator, machine validation, finite reduction compiler, sparse-tape interpreter |
 | `app.js` | Introductory closure explorer and concept check |
@@ -75,6 +72,14 @@ The compiler never executes M to discover its outcome. It constructs a finite tr
 
 The model has a two-way infinite tape. `_` is blank. Rules are deterministic; missing rules reject. Accept and reject states halt and cannot have outgoing rules. `S` means a stationary move. Inputs contain nonblank alphabet symbols. The editor allows at most 100 source rules and 10 alphabet symbols; the word limit is 32. Execution stops at a 2,000-step **observation budget**, with the outcome explicitly unknown if the machine has not halted. No arbitrary code is evaluated from the editor.
 
+## DFA property decision lab
+
+Edit a total DFA A. Build its product C with the two-state DFA recognizing odd counts of the literal symbol `1` (other symbols preserve parity). The property is `M_DFA = {⟨A⟩ | A accepts no word with an odd number of 1s}`. Breadth-first search either reaches an accepting product state and reconstructs a shortest counterexample, or exhausts the frontier and certifies the intersection is empty. Unlike bounded TM observation, exhaustion of this finite graph is conclusive.
+
+The view displays the real product states, transition table, frontier, events and executed source. Click a product state to inspect its outgoing edges. Edit A, trace an individual word, or export the decision artifact. Invalid or incomplete DFA descriptions are rejected before construction. Alphabets may contain symbols beyond 0/1, and may omit 1 entirely.
+
+`verifyCertificate` separately checks negative decisions by simulating the witness and checking odd parity; positive decisions use a set containing the start state, closed under all transitions and free of accepting product states. Tests compare every binary two-state DFA (including every accepting set and start state) against the finite shortest-witness bound, and exercise malformed encodings, unreachable states, ε, and certificate tampering.
+
 ## Mathematical construction
 
 ### Closure of decidable languages
@@ -95,18 +100,18 @@ Thus ⟨M,w⟩ ∈ A_TM iff ⟨N,ε⟩ ∈ LEFT₃. This effective finite transf
 
 ## Validation and limits
 
-`npm test` runs 14 tests covering independent language characterizations, custom total deciders, ε, every pair of source moves and write symbols, actual tape writes, macro-boundary configuration equality, initialization for short binary words, initially halting states, missing rules, malformed inputs and deterministic generated transitions. The loop preset is a known right-moving machine; its observed prefix alone is never presented as a general nontermination proof.
+`npm test` runs the unit tests covering independent language characterizations, custom total deciders, ε, every pair of source moves and write symbols, actual tape writes, macro-boundary configuration equality, initialization for short binary words, initially halting states, missing rules, malformed inputs and deterministic generated transitions. The loop preset is a known right-moving machine; its observed prefix alone is never presented as a general nontermination proof.
 
 A Chromium smoke test also exercises source highlighting, closure verdicts, compiled accept/reject/loop traces, invalid JSON, ε and mobile overflow. With the server running, execute `npm run test:browser`. Set `CHROMIUM_BIN` if Chromium is not at `/usr/bin/chromium`. It uses local DevTools port 9333 and writes screenshots under `/tmp`. This optional browser check is separate from the portable unit tests.
 
-This is an executable proof exploration tool, not a proof-assistant formalization. Tests validate finite cases and implementation invariants. The mathematical arguments establish the unrestricted results. Exported JSON is a reproducible artifact, not a formal proof certificate.
+This is an executable proof exploration tool, not a proof-assistant formalization. Tests validate finite cases and implementation invariants. The mathematical arguments establish the unrestricted results. Exported TM and closure traces are reproducible artifacts, not formal proof certificates. The DFA lab additionally exports finite witnesses or inductively closed reachable sets checked by a separate verifier; these are not proof-assistant formalizations.
 
 ## Deployment
 
-In repository Settings → Pages → Build and deployment, select **GitHub Actions**. The included workflow tests the project and publishes its eight public app files on pushes to `main`. Static hosting needs `index.html`, `style.css`, `app.js`, `logic.js`, `proof-engine.js`, `workshop.js`, `experiments.js` and `experiments-ui.js` in the same directory; no backend or build step is needed. Relative asset paths support the project URL:
+In repository Settings → Pages → Build and deployment, select **GitHub Actions**. The included workflow tests the project and publishes its ten public app files on pushes to `main`. Static hosting needs `index.html`, `style.css`, `app.js`, `logic.js`, `proof-engine.js`, `workshop.js`, `experiments.js`, `experiments-ui.js`, `dfa.js` and `dfa-ui.js` in the same directory; no backend or build step is needed. Relative asset paths support the project URL:
 
 https://minseok2626.github.io/TuringMachineProof/
 
 ### Measurement protocol
 
-The balance alphabet is `{0,1}`; the copy alphabet is `{0,1,#}`. Length includes the separator. The dataset contains every word of each included length, including ε and malformed separators. Each row includes word, length, observed outcome, independent expected label, agreement, physical transitions, L/R/S counts, changed-symbol write operations, and tape span (including the initial input extent). The safety budget is 10,000 transitions per word. Unknown runs are counted separately, never relabeled as rejection. Each chart point weights words equally within that length; no runtime timings, random sampling, or curve fitting are used. Since alphabets and acceptance distributions differ, cross-task averages are not controlled algorithm comparisons. Empirical growth is not an asymptotic proof.
+The balance alphabet is `{0,1}`; the copy alphabet is `{0,1,#}`. Length includes the separator. The dataset contains every word of each included length, including ε and malformed separators. Each row includes word, length, observed outcome, independent expected label, agreement, physical transitions, L/R/S counts, changed-symbol write operations, and tape span (including the initial input extent). The selected safety budget is 25, 100, 1,000 or 10,000 transitions per word. Unknown runs are counted separately, never relabeled as rejection. Each chart point weights words equally within that length; no runtime timings, random sampling, or curve fitting are used. Since alphabets and acceptance distributions differ, cross-task averages are not controlled algorithm comparisons. Empirical growth is not an asymptotic proof.
