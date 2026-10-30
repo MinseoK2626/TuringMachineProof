@@ -1,4 +1,4 @@
-import { evaluate, reductionTrace } from './logic.js';
+import { evaluate } from './logic.js';
 const $ = s => document.querySelector(s);
 const display = w => w || 'ε';
 const meta = {
@@ -42,27 +42,8 @@ document.querySelectorAll('[data-op]').forEach(button=>button.addEventListener('
 $('#word-form').addEventListener('submit',e=>{e.preventDefault();render();});
 render();
 
-let step=0;
-const examples={accept:['R','L','L','S','R'],reject:['R','L','L','S','R'],loop:Array.from({length:8},()=>['R','L']).flat()};
-function traceRender(){
-  const scenario=$('#scenario').value;
-  const trace=reductionTrace(examples[scenario],scenario); const visible=trace.moves.slice(0,step);
-  $('#trace-counter').textContent=`STEP ${step} / ${trace.moves.length}`;
-  const moves=$('#move-trace');moves.replaceChildren();
-  if(!step){const placeholder=document.createElement('span');placeholder.className='trace-placeholder';placeholder.textContent='Take a step to observe the head movements.';moves.append(placeholder);}
-  visible.forEach((m,i)=>{const el=document.createElement('span');el.textContent=m;el.className=i>=trace.prefix.length+1?'trigger':'';moves.append(el);});
-  let head=visible.reduce((p,m)=>p+(m==='R'?1:-1),0);
-  const tape=$('#machine-tape');tape.replaceChildren();
-  for(let p=head-3;p<=head+3;p++){const cell=document.createElement('span');cell.textContent=p===0?'⊢':'□';cell.className=p===head?'active':'';cell.title=`cell ${p}`;tape.append(cell);}
-  const done=step===trace.moves.length;
-  const hit=visible.join('').includes('LLL');
-  $('#trace-status').className=hit?'hit':'';
-  $('#trace-status').textContent=hit?'✓ LLL detected — triggered by the acceptance of M':done?(scenario==='loop'?'End of displayed prefix · N continues simulating.':'M rejects → N halts · No LLL'):step>trace.prefix.length?'M accepts → Executing the RLLL signal':'Safe simulation · No LLL so far';
-  $('#step-trace').disabled=done;
-}
-$('#step-trace').addEventListener('click',()=>{step++;traceRender();});
-$('#reset-trace').addEventListener('click',()=>{step=0;traceRender();});
-$('#scenario').addEventListener('change',()=>{step=0;traceRender();});traceRender();
 document.querySelectorAll('[data-answer]').forEach(b=>b.addEventListener('click',()=>{
   $('#quiz-feedback').textContent=b.dataset.answer==='right'?'Correct. LLL could occur later. Not observing it during a finite execution does not prove it will never occur.':'Try again. LLL could first appear after step 1,000. There is no fixed observation bound that settles every instance.';
 }));
+
+import './workshop.js';
