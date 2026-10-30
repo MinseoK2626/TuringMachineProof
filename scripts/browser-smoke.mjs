@@ -29,12 +29,25 @@ try{
  await evaluate("document.querySelector('#tm-json').value='invalid';document.querySelector('#tm-json').dispatchEvent(new Event('input'));document.querySelector('#tm-compile').click()");assert.ok(await evaluate("document.querySelector('#tm-error').textContent.length>0 && document.querySelector('#tm-step').disabled"));
  await evaluate("document.querySelector('#tm-preset').value='accept';document.querySelector('#tm-preset').dispatchEvent(new Event('change'))");
  await evaluate("document.querySelector('[data-op=star]').click();document.querySelector('#word').value='';document.querySelector('#word-form').dispatchEvent(new Event('submit',{cancelable:true}))");assert.match(await evaluate("document.querySelector('#result').textContent"),/ACCEPTED/);
- await evaluate("document.querySelector('#closure-code').scrollIntoView({behavior:'instant'})");
+ assert.ok((await evaluate("document.querySelector('#course-metrics').textContent")).includes('ORACLE MISMATCHES'));
+ await evaluate("document.querySelector('#course-task').value='copy';document.querySelector('#course-task').dispatchEvent(new Event('change'))");
+ assert.match(await evaluate("document.querySelector('#course-protocol').textContent"),/Repeated words/);
+ assert.equal(await evaluate("document.querySelector('#course-metrics strong').textContent"),'1,093');
+ await evaluate("document.querySelector('#course-filter-length').value='3';document.querySelector('#course-filter-outcome').value='accept';document.querySelector('#course-filter-outcome').dispatchEvent(new Event('change'))");
+ assert.equal(await evaluate("document.querySelectorAll('#course-data tr').length"),2);
+ await evaluate("document.querySelector('#course-data button').click()");
+ assert.equal(await evaluate("document.querySelector('#tm-preset').value"),'course');
+ assert.match(await evaluate("document.querySelector('#tm-json').value"),/validateLeft/);
+ await evaluate("document.querySelector('#tm-run').click()");
+ assert.ok(!(await evaluate("document.querySelector('#tm-invariant').textContent")).includes('failed'));
+ await evaluate("document.querySelector('#compare-a').value='##';document.querySelector('#compare-b').value='#';document.querySelector('#course-compare').dispatchEvent(new Event('submit',{cancelable:true}))");
+ assert.match(await evaluate("document.querySelector('#compare-results').textContent"),/reject/);
+ await evaluate("document.querySelector('#course-lab').scrollIntoView({behavior:'instant'})");
  await send('Page.captureScreenshot',{format:'png'}).then(r=>writeFile('/tmp/proof-lab-desktop.png',Buffer.from(r.data,'base64')));
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  assert.ok(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'),'mobile has no horizontal overflow');
  await evaluate("document.querySelector('.machine-workbench').scrollIntoView({behavior:'instant'})");
  await send('Page.captureScreenshot',{format:'png'}).then(r=>writeFile('/tmp/proof-lab-mobile.png',Buffer.from(r.data,'base64')));
  assert.equal(errors.length,0,errors.join('\n'));
- console.log('Browser smoke passed: closure source highlighting and verdict; compiled accept/reject/loop runs; invariant and row highlighting; invalid editor; epsilon; mobile overflow; no JavaScript exceptions.');
+ console.log('Browser smoke passed: closure source highlighting and verdict; compiled accept/reject/loop runs; invariant and row highlighting; invalid editor; epsilon; course dataset and filters; imported course machine; controlled comparison; mobile overflow; no JavaScript exceptions.');
 }catch(e){console.error(e);process.exitCode=1;}finally{ws?.close();chrome.kill();}

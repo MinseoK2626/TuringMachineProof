@@ -9,7 +9,7 @@ http.createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
-    if (!file.startsWith(root + path.sep) || !['index.html', 'style.css', 'app.js', 'logic.js', 'proof-engine.js', 'workshop.js'].includes(path.relative(root, file))) {
+    if (!file.startsWith(root + path.sep) || !['index.html', 'style.css', 'app.js', 'logic.js', 'proof-engine.js', 'workshop.js', 'experiments.js', 'experiments-ui.js'].includes(path.relative(root, file))) {
       res.writeHead(404).end('Not found'); return;
     }
     const data = await readFile(file);

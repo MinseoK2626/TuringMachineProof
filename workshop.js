@@ -130,6 +130,17 @@ $('#tm-reset').addEventListener('click',resetMachine);
 $('#tm-compile').addEventListener('click',compile);
 $('#tm-export').addEventListener('click',()=>download('compiled-reduction.json',{scope:'Finite machine construction and bounded execution; not a proof of nontermination',original,input:compiled.word,compiled,execution:history,final:{state:nc.state,head:nc.head,tape:[...nc.tape],moves:nc.moves}}));
 ['#tm-json','#tm-word'].forEach(s=>$(s).addEventListener('input',dirty));
-$('#tm-preset').addEventListener('change',()=>{$('#tm-json').value=JSON.stringify(presets[$('#tm-preset').value],null,2);$('#tm-word').value='1';compile();});
+$('#tm-preset').addEventListener('change',()=>{if($('#tm-preset').value==='course')return;$('#tm-json').value=JSON.stringify(presets[$('#tm-preset').value],null,2);$('#tm-word').value='1';compile();});
 $('#tm-json').value=JSON.stringify(presets.accept,null,2);compile();
 $('#compiler-source').textContent=compileMove.toString()+'\n\n'+compileReduction.toString();
+
+// Course experiments hand the actual generated machine to this debugger.
+document.addEventListener('inspect-course-machine', event => {
+  if (!$('#tm-preset').querySelector('option[value="course"]')) {
+    const option=new Option('Imported coursework machine', 'course');option.disabled=true;$('#tm-preset').append(option);
+  }
+  $('#tm-preset').value='course';
+  $('#tm-json').value=JSON.stringify(event.detail.machine,null,2);
+  $('#tm-word').value=event.detail.word;
+  compile();
+});
