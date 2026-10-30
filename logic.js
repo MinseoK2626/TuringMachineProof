@@ -2,8 +2,8 @@
 export const inA = w => /^[01]*$/.test(w) && w.endsWith('0');
 export const inB = w => /^[01]*$/.test(w) && [...w].filter(c => c === '1').length % 2 === 1;
 export function evaluate(op, w) {
-  if (!/^[01]*$/.test(w)) throw new Error('Σ = {0, 1}: 0과 1만 입력해 주세요.');
-  if (w.length > 12) throw new Error('시각화는 길이 12 이하의 문자열을 지원합니다.');
+  if (!/^[01]*$/.test(w)) throw new Error('Σ = {0, 1}: please enter only 0s and 1s.');
+  if (w.length > 12) throw new Error('The visualization supports words of at most 12 symbols.');
   const a = inA(w), b = inB(w);
   if (['union', 'intersection', 'complement'].includes(op)) {
     return { accepted: op === 'union' ? a || b : op === 'intersection' ? a && b : !a, a, b };

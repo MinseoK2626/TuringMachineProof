@@ -1,6 +1,6 @@
 # Turing Proof Lab
 
-An interactive, Korean-language theory of computation portfolio project. Explore closure constructions for decidable languages and a mapping reduction from A_TM to detecting three consecutive left moves.
+An interactive, English-language theory of computation portfolio project. Explore closure constructions for decidable languages and a mapping reduction from A_TM to detecting three consecutive left moves.
 
 ## Run locally
 
